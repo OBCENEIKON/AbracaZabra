@@ -1,0 +1,6 @@
+== README
+
+# AbracaZabra
+A Zabbix third party tool to connect Zabbix to JIRA.
+
+* Ruby version 2.2.3

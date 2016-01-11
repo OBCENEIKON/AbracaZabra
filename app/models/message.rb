@@ -10,7 +10,7 @@ class Message < ActiveRecord::Base
       message = {
           subject: m.subject,
           body: m.body.to_s,
-          status: config['zabbix']['text_descriptions']['trigger_status']['problem'],
+          status: config['zabbix']['text_descriptions']['problem'],
           severity: config['jira']['priorities']['trivial'],
           whitelisted: whitelisted?(m),
           zabbix_id: nil,

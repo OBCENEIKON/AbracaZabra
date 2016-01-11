@@ -1,0 +1,50 @@
+---
+default: &defaults
+  email:
+    whitelist:
+      - vamf-no-reply@va.gov
+      - emm-no-reply@va.gov
+      - mae-no-reply@va.gov
+      - isapple@JeremysMacBookPro-Work.local
+    to:
+      - isapple@JeremysMacBookPro-Work.local
+      - milton_jerimiah@bah.com
+    from: isapple@JeremysMacBookPro-Work.local
+    subject: 'Zabbix Automated Daily Report'
+    body: "Good Morning,\nThere %total_alerts% for %from_date% to %to_date%."
+  jira:
+    url: "http://localhost:8080/jira"
+    issue_id: 10000
+    project_id: 10000
+    username: Zabbix
+    password: zabbix
+    priorities:
+      blocker: 1
+      critical: 2
+      major: 3
+      minor: 4
+      standard: 10000
+      trivial: 5
+    statuses:
+      open: 1
+      resolved: 5
+  zabbix:
+    text_descriptions:
+      average: Average
+      disaster: Disaster
+      high: High
+      ok: OK
+      problem: PROBLEM
+      trigger_severity: "Trigger severity"
+      trigger_status: "Trigger status"
+      warning: Warning
+      zabbix_id: "Original event ID"
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults

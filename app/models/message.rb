@@ -6,8 +6,6 @@ class Message < ActiveRecord::Base
       next unless whitelisted? m
 
       data = m.body.to_s.split("\n").reject(&:empty?)
-      ap 'Data'
-      ap data
 
       message = {
           subject: m.subject,

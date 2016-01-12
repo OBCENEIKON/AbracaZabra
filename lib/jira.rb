@@ -23,7 +23,7 @@ class Jira
       from_date = long_time(DateTime.now.yesterday.beginning_of_day.change(hour: 8))
       to_date = long_time(DateTime.now.beginning_of_day.change(hour: 8))
 
-      @body = config['email']['body']
+      @body = config['jira']['email']['body']
       replace({ /%total_alerts%/ => @total_alerts_text, /%from_date%/ => from_date, /%to_date%/ => to_date }, @body)
 
       if @total_alerts > 0
@@ -43,9 +43,9 @@ class Jira
         html_body '</ul>'
       end
 
-      to = config['email']['to']
-      from = config['email']['from']
-      subject = config['email']['subject']
+      to = config['jira']['email']['to']
+      from = config['jira']['email']['from']
+      subject = config['jira']['email']['subject']
 
       Mail.deliver do
         to to
@@ -81,6 +81,8 @@ class Jira
               description: @message['body']
           }
       }
+
+      message_json['fields']['assignee'] = config['abracazabra']['admin'] if @message['subject'] == config['abracazabra']['email']['subject']
 
       result = jira_request 'post', 'rest/api/2/issue', message_json
       result = JSON.parse(result)

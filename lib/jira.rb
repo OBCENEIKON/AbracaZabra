@@ -27,7 +27,7 @@ class Jira
       replace({ /%total_alerts%/ => @total_alerts_text, /%from_date%/ => from_date, /%to_date%/ => to_date }, @body)
 
       if @total_alerts > 0
-        @body += "\nOf these alerts #{@average} were Average, #{@warning} were Warnings, #{@high} were High, #{@disaster} were Disaster and #{@unknown} were Unknown."
+        @body += "\n\nDisaster: #{@disaster}\nHigh: #{@high}\nAverage: #{@average}\nWarning: #{@warning}\nUnknown: #{@unknown}"
         @body += "\n\nPlease find them below:\n\n"
 
         text_body @body

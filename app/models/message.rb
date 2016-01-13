@@ -11,6 +11,7 @@ class Message < ActiveRecord::Base
         message = {
             subject: m.subject,
             body: m.body.to_s,
+            environment: '',
             status: config['zabbix']['text_descriptions']['problem'],
             severity: config['jira']['priorities']['trivial'],
             whitelisted: whitelisted?(m),
@@ -19,7 +20,9 @@ class Message < ActiveRecord::Base
             mail_message: Marshal.dump(m)
         }
 
-        if data.include? config['zabbix']['text_descriptions']['zabbix_id']
+        if m.body.to_s.include? config['zabbix']['text_descriptions']['zabbix_id']
+          environment = m.subject[0, 3]
+
           data.each do |d|
             line = /^([a-zA-Z\s]+):(.+)$/.match(d)
 
@@ -47,6 +50,7 @@ class Message < ActiveRecord::Base
           message =  {
               subject: m.subject,
               body: m.body.to_s,
+              environment: environment,
               status: @status,
               severity: @priority,
               whitelisted: whitelisted?(m),
@@ -62,7 +66,7 @@ class Message < ActiveRecord::Base
 
         Jira.delay.issue(message.id)
       end
-    rescue
+    rescue Exception
         message = {
             subject: config['abracazabra']['email']['subject'],
             body: $!,
@@ -83,7 +87,7 @@ class Message < ActiveRecord::Base
 
   def whitelisted?(message)
     # You would expect true if it's whitelisted and false if not, hence the !
-    !(config['abracazabra']['email']['whitelist'] & message.from).empty?
+    !(config['zabbix']['email']['whitelist'] & message.from).empty?
   end
 
   def config

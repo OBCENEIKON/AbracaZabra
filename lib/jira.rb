@@ -68,17 +68,18 @@ class Jira
     def new_issue
       message_json = {
           fields: {
-              project: {
-                  id: config['jira']['project_id']
-              },
+              summary: @message['subject'],
+              description: @message['body'],
               issuetype: {
                   id: config['jira']['issue_id']
+              },
+              project: {
+                  id: config['jira']['project_id']
               },
               priority: {
                   id: @message['severity']
               },
-              summary: @message['subject'],
-              description: @message['body']
+              environment: @message['environment']
           }
       }
 
@@ -136,8 +137,7 @@ class Jira
     end
 
     def config
-      # Had to reload the config file here, because for some reason some of the configuration options were missing
-      Rails.application.config.x.abracazabra ||= Rails.application.config_for(:abracazabra)
+      Rails.application.config.x.abracazabra
     end
 
     def replace(map, string)

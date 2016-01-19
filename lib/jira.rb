@@ -3,8 +3,12 @@ class Jira
     def issue(message_id)
       @message = Message.find(message_id)
 
-      if @message['status'] == config['zabbix']['text_descriptions']['problem']
-        new_issue
+      if @message.status == config['zabbix']['text_descriptions']['problem']
+        if Message.where(zabbix_id: @message.zabbix_id).count > 1
+          new_comment
+        else
+          new_issue
+        end
       else
         close_issue
       end
@@ -68,8 +72,8 @@ class Jira
     def new_issue
       message_json = {
           fields: {
-              summary: @message['subject'],
-              description: @message['body'],
+              summary: @message.subject,
+              description: @message.body,
               issuetype: {
                   id: config['jira']['issue_id']
               },
@@ -77,13 +81,13 @@ class Jira
                   id: config['jira']['project_id']
               },
               priority: {
-                  id: @message['severity']
+                  id: @message.severity
               },
-              environment: @message['environment']
+              environment: @message.environment
           }
       }
 
-      message_json['fields']['assignee'] = config['abracazabra']['admin'] if @message['subject'] == config['abracazabra']['email']['subject']
+      message_json['fields']['assignee'] = config['abracazabra']['admin'] if @message.subject == config['abracazabra']['email']['subject']
 
       result = jira_request 'post', 'rest/api/2/issue', message_json
       result = JSON.parse(result)
@@ -93,14 +97,18 @@ class Jira
       @message.save
     end
 
-    def close_issue
-      jira = Message.find_by(zabbix_id: @message['zabbix_id'], status: config['zabbix']['text_descriptions']['problem'])
+    def new_comment
+      @jira = Message.find_by(zabbix_id: @message.zabbix_id, status: config['zabbix']['text_descriptions']['problem'])
 
       message_json = {
-          body: @message['body']
+          body: @message.body
       }
 
-      jira_request 'post', "rest/api/2/issue/#{jira.jira_key}/comment", message_json
+      jira_request 'post', "rest/api/2/issue/#{@jira.jira_key}/comment", message_json
+    end
+
+    def close_issue
+      new_comment
 
       message_json = {
           transition: {
@@ -108,15 +116,12 @@ class Jira
           }
       }
 
-      result = jira_request 'post', "rest/api/2/issue/#{jira.jira_key}/transitions", message_json
-      result = JSON.parse(result)
+      jira_request 'post', "rest/api/2/issue/#{@jira.jira_key}/transitions", message_json
 
-      @message.jira_id = result['id']
-      @message.jira_key = result['key']
+      @message.jira_id = @jira.jira_id
+      @message.jira_key = @jira.jira_key
       @message.save
     end
-
-    private
 
     def jira_request(method, path, payload)
       user = config['jira']['username']

@@ -5,6 +5,7 @@ default: &default
     email:
       from: isapple@JeremysMacBookPro-Work.local
       subject: "AbracaZabra Error"
+
   jira:
     url: "http://localhost:8080/jira"
     project_id: 10000
@@ -54,6 +55,7 @@ default: &default
       Task: 3
       Epic: 13
       Improvement: 5
+
   zabbix:
     text_descriptions:
       average: Average

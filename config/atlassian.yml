@@ -1,0 +1,66 @@
+---
+default: &default
+  jira:
+    url: "http://localhost:8080/jira"
+    project_id: 10000
+    issuetype_id: 10000
+    username: zabbix
+    password: zabbix
+    email:
+      from: isapple@JeremysMacBookPro-Work.local
+      subject: "Zabbix Automated Daily Report"
+      to:
+        - isapple@JeremysMacBookPro-Work.local
+      body: |-
+          Good Morning,
+          There %total_alerts% for %from_date% to %to_date%.
+    priorities:
+      blocker: 1
+      critical: 2
+      major: 3
+      minor: 4
+      standard: 10000
+      trivial: 5
+    resolution:
+      Unresolved: -1
+      Fixed: 1
+      "Won't Fix": 2
+      Duplicate: 3
+      Incomplete: 4
+      "Cannot Reproduce": 5
+      Completed: 6
+      Done: 7
+      Passed: 8
+      Failed: 9
+      "Ready for Release": 10
+      "Won't Release": 11
+      "Won't Complete": 13
+      Invalid: 14
+      Assigned: 15
+      Released: 16
+      "False Positive": 10002
+      Declined: 10000
+      Complete: 10001
+    statuses:
+      open: 1
+      resolved: 5
+    type:
+      Bug: 1
+      Task: 3
+      Epic: 13
+      Improvement: 5
+
+  team_calendar:
+    calendar:
+      enabled: true
+      url: "http://localhost:8090"
+      calendar_id: c9224937-52c1-4b2c-8589-961ff8bb8805
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

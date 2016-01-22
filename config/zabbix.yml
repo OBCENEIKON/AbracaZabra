@@ -1,0 +1,27 @@
+---
+default: &default
+  text_descriptions:
+    average: Average
+    disaster: Disaster
+    high: High
+    ok: OK
+    problem: PROBLEM
+    trigger_severity: "Trigger severity"
+    trigger_status: "Trigger status"
+    warning: Warning
+    zabbix_id: "Original event ID"
+  email:
+    whitelist:
+      - vamf-no-reply@va.gov
+      - emm-no-reply@va.gov
+      - mae-no-reply@va.gov
+      - isapple@JeremysMacBookPro-Work.local
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

@@ -2,10 +2,14 @@ module Atlassian
   class Jira
     class << self
       def issue(message_id)
-        @message = Message.find(message_id)
+        @message = MailMessage.find(message_id)
+        Delayed::Worker.logger.debug(@message)
+        Delayed::Worker.logger.debug(@message.status)
+        Delayed::Worker.logger.debug(config)
+        Delayed::Worker.logger.debug(config[:zabbix]['text_descriptions']['problem'])
 
         if @message.status == config[:zabbix]['text_descriptions']['problem']
-          if Message.where(zabbix_id: @message.zabbix_id).count > 1
+          if MailMessage.where(zabbix_id: @message.zabbix_id).count > 1
             new_comment
           else
             new_issue
@@ -107,7 +111,7 @@ module Atlassian
 
       def new_comment
         Delayed::Worker.logger.debug('new_comment')
-        @jira = Message.find_by(zabbix_id: @message.zabbix_id, status: config[:zabbix]['text_descriptions']['problem'])
+        @jira = MailMessage.find_by(zabbix_id: @message.zabbix_id, status: config[:zabbix]['text_descriptions']['problem'])
 
         message_json = {
             body: @message.body
@@ -245,9 +249,13 @@ module Atlassian
         end
       end
 
-      # def config
-      #   Atlassian.config
-      # end
+      def config
+        config ||= {}
+        config[:abracazabra] ||= Rails.configuration.x.abracazabra
+        config[:atlassian] ||= Rails.configuration.x.atlassian
+        config[:zabbix] ||= Rails.configuration.x.zabbix
+        config
+      end
     end
   end
 end

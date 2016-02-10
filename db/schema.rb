@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(version: 20160107002002) do
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority"
 
-  create_table "messages", force: :cascade do |t|
+  create_table "mail_messages", force: :cascade do |t|
     t.string   "subject",                      null: false
     t.text     "body",                         null: false
     t.string   "environment"
@@ -46,9 +46,9 @@ ActiveRecord::Schema.define(version: 20160107002002) do
     t.datetime "updated_at"
   end
 
-  add_index "messages", ["deleted_at"], name: "index_messages_on_deleted_at"
-  add_index "messages", ["jira_id"], name: "index_messages_on_jira_id"
-  add_index "messages", ["jira_key"], name: "index_messages_on_jira_key"
-  add_index "messages", ["zabbix_id"], name: "index_messages_on_zabbix_id"
+  add_index "mail_messages", ["deleted_at"], name: "index_mail_messages_on_deleted_at"
+  add_index "mail_messages", ["jira_id"], name: "index_mail_messages_on_jira_id"
+  add_index "mail_messages", ["jira_key"], name: "index_mail_messages_on_jira_key"
+  add_index "mail_messages", ["zabbix_id"], name: "index_mail_messages_on_zabbix_id"
 
 end

@@ -1,10 +1,10 @@
 unless defined? Rake::Task
   scheduler = Rufus::Scheduler.new
 
-  m = Message.new
+  m = MailMessage.new
 
   scheduler.every '1m', first: :now do
-    m.messages
+    m.fetch
   end
 
   scheduler.cron '15 8 * * *' do

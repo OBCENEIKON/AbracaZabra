@@ -1,4 +1,4 @@
-Rails.application.config.x.abracazabra = Rails.application.config_for(:abracazabra)
+Rails.application.config.x.abracazabra = Rails.application.config_for(:application)
 Rails.application.config.x.atlassian = Rails.application.config_for(:atlassian)
 Rails.application.config.x.zabbix = Rails.application.config_for(:zabbix)
 

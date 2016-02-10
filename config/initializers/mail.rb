@@ -1,7 +1,10 @@
+config ||= {}
+config[:abracazabra] ||= Rails.configuration.x.abracazabra
+
 Mail.defaults do
-  retriever_method :pop3, address: 'localhost',
-                    port: 110,
-                    user_name: 'isapple',
-                    password: '!K5a2m02E11t9m04!',
-                    enable_ssl: false
+  retriever_method config[:abracazabra]['email']['method'].to_sym, address: config[:abracazabra]['email']['address'],
+                    port: config[:abracazabra]['email']['port'],
+                    user_name: config[:abracazabra]['email']['username'],
+                    password: config[:abracazabra]['email']['password'],
+                    enable_ssl: config[:abracazabra]['email']['ssl']
 end

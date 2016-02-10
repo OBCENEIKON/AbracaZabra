@@ -55,6 +55,8 @@ GEM
     erubis (2.7.0)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
+    hooks (0.4.1)
+      uber (~> 0.0.14)
     http-cookie (1.0.2)
       domain_name (~> 0.5)
     i18n (0.7.0)
@@ -121,6 +123,7 @@ GEM
     thread_safe (0.3.5)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    uber (0.0.15)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.1)
@@ -138,6 +141,7 @@ DEPENDENCIES
   byebug
   daemons
   delayed_job_active_record
+  hooks
   jbuilder (~> 2.0)
   mail
   paranoia

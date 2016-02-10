@@ -26,6 +26,9 @@ gem 'delayed_job_active_record'
 # Daemons for DelayedJob
 gem 'daemons'
 
+# Generic hooks for hooks and callbacks
+gem 'hooks'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'

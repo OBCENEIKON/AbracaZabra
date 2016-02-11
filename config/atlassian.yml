@@ -1,9 +1,9 @@
 ---
 default: &default
   jira:
-    url: "http://192.168.99.100:32769/"
+    url: "http://192.168.99.100:32769"
     project_id: 10000
-    issuetype_id: 10000
+    issuetype_id: 10001
     username: zabbix
     password: zabbix
     email:
@@ -45,10 +45,19 @@ default: &default
       open: 1
       resolved: 5
     type:
-      Bug: 1
-      Task: 3
-      Epic: 13
-      Improvement: 5
+      "Sub-task": 10000
+      Task: 10001
+      Bug: 10002
+      Epic: 10003
+      Impediment: 10004
+      Improvement: 10005
+      "Original Request": 10006
+      "Request: ALM Tool Mod": 10007
+      Risk: 10008
+      "Scan Remediation": 10009
+      Story: 10010
+    fields:
+      environment: null
   confluence:
     url: "http://192.168.99.100:32768"
     space: DEV

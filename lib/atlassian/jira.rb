@@ -21,8 +21,8 @@ module Atlassian
 
       def report
         query_json = {
-            jql: "project = #{config[:atlassian]['jira']['project_id']} and created >= '-2d'",
-            fields: ['*all']
+          jql: "project = #{config[:atlassian]['jira']['project_id']} and created >= '-2d'",
+          fields: ['*all']
         }
 
         result = jira_request 'post', 'rest/api/2/search', query_json
@@ -77,36 +77,48 @@ module Atlassian
       def new_issue
         Delayed::Worker.logger.debug('new_issue')
         message_json = {
-            fields: {
-                summary: @message.subject,
-                description: @message.body,
-                issuetype: {
-                    id: config[:atlassian]['jira']['issuetype_id']
-                },
-                project: {
-                    id: config[:atlassian]['jira']['project_id']
-                },
-                priority: {
-                    id: @message.severity
-                },
-                environment: @message.environment
+          fields: {
+            summary: @message.subject,
+            description: @message.body,
+            issuetype: {
+              id: config[:atlassian]['jira']['issuetype_id']
+            },
+            project: {
+              id: config[:atlassian]['jira']['project_id']
+            },
+            priority: {
+              id: @message.severity
             }
+          }
         }
-
-        if @message.subject == config[:abracazabra]['email']['subject']
-          message_json[:fields][:assignee] = { name: config[:abracazabra]['admin'] }
-        elsif config[:atlassian]['jira']['calendar']['enabled']
-          Atlassian::TeamCalendar.assign_issue message_json
-          Delayed::Worker.logger.debug(message_json)
-        end
+        # Delayed::Worker.logger.debug(message_json)
+        #
+        # if @message.subject == config[:abracazabra]['email']['subject']
+        #   message_json[:fields][:assignee] = { name: config[:abracazabra]['admin'] }
+        # elsif config[:atlassian]['jira']['calendar']['enabled']
+        #   # Atlassian::TeamCalendar.assign_issue message_json
+        #   Delayed::Worker.logger.debug(message_json)
+        # end
         Delayed::Worker.logger.debug(message_json)
 
-        result = jira_request 'post', 'rest/api/2/issue', message_json
-        result = JSON.parse(result)
+        begin
+          result = jira_request 'post', 'rest/api/2/issue', message_json
+          result = JSON.parse(result)
 
-        @message.jira_id = result['id']
-        @message.jira_key = result['key']
-        @message.save
+          @message.jira_id = result['id']
+          @message.jira_key = result['key']
+          @message.save
+
+          message_json = {
+            fields: {
+              environment: @message.environment
+            }
+          }
+
+          jira_request 'put', "rest/api/2/issue/#{@message.jira_id}", message_json
+        rescue RestClient::ExceptionWithResponse => err
+          error err, __method__
+        end
       end
 
       def new_comment
@@ -114,10 +126,14 @@ module Atlassian
         @jira = MailMessage.find_by(zabbix_id: @message.zabbix_id, status: config[:zabbix]['text_descriptions']['problem'])
 
         message_json = {
-            body: @message.body
+          body: @message.body
         }
 
-        jira_request 'post', "rest/api/2/issue/#{@jira.jira_key}/comment", message_json
+        begin
+          jira_request 'post', "rest/api/2/issue/#{@jira.jira_key}/comment", message_json
+        rescue RestClient::ExceptionWithResponse => err
+          error err, __method__
+        end
       end
 
       def close_issue
@@ -125,12 +141,16 @@ module Atlassian
         new_comment
 
         message_json = {
-            transition: {
-              id: 21
-            }
+          transition: {
+            id: 21
+          }
         }
 
-        jira_request 'post', "rest/api/2/issue/#{@jira.jira_key}/transitions", message_json
+        begin
+          jira_request 'post', "rest/api/2/issue/#{@jira.jira_key}/transitions", message_json
+        rescue RestClient::ExceptionWithResponse => err
+          error err, __method__
+        end
 
         @message.jira_id = @jira.jira_id
         @message.jira_key = @jira.jira_key
@@ -138,21 +158,16 @@ module Atlassian
       end
 
       def jira_request(method, path, payload)
-        Delayed::Worker.logger.debug('jira_request')
         user = config[:atlassian]['jira']['username']
         pass = config[:atlassian]['jira']['password']
         auth = 'Basic ' + Base64.encode64("#{user}:#{pass}").chomp
 
-        Delayed::Worker.logger.debug('Path')
-        Delayed::Worker.logger.debug("#{config[:atlassian]['jira']['url']}/#{path}")
-        Delayed::Worker.logger.debug('Auth')
-        Delayed::Worker.logger.debug(auth)
-        Delayed::Worker.logger.debug('Method')
-        Delayed::Worker.logger.debug(method)
-        Delayed::Worker.logger.debug('Payload')
-        Delayed::Worker.logger.debug(payload.to_json)
-        resource = RestClient::Resource.new("#{config[:atlassian]['jira']['url']}/#{path}")
-        resource.send(method, payload.to_json, Authorization: auth, content_type: :json, accept: :json)
+        begin
+          resource = RestClient::Resource.new("#{config[:atlassian]['jira']['url']}/#{path}")
+          resource.send(method, payload.to_json, Authorization: auth, content_type: :json, accept: :json)
+        rescue RestClient::ExceptionWithResponse => err
+          error err, __method__
+        end
       end
 
       def long_time(time)
@@ -255,6 +270,11 @@ module Atlassian
         config[:atlassian] ||= Rails.configuration.x.atlassian
         config[:zabbix] ||= Rails.configuration.x.zabbix
         config
+      end
+
+      def error(exception, method)
+        Delayed::Worker.logger.debug("#{self.class.to_s.split("::").first}.#{method}")
+        Delayed::Worker.logger.debug(exception)
       end
     end
   end

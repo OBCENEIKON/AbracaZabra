@@ -1,0 +1,48 @@
+{
+  "services": [
+    {
+      "name": "worker",
+      "image": "",
+      "linked_to_service": [
+        {
+          "name": "redis",
+          "to_service": "redis"
+        },
+        {
+          "name": "db",
+          "to_service": "db"
+        }
+      ],
+      "run_command": null,
+      "autoredeploy": true,
+      "target_num_containers": 1,
+      "sequential_deployment": true,
+      "container_envvars": null
+    },
+    {
+      "name": "app",
+      "image": "",
+      "target_num_containers": 1,
+      "sequential_deployment": true,
+      "autorestart": "ALWAYS",
+      "autoredeploy": true,
+      "linked_to_service": [
+        {
+          "name": "db",
+          "to_service": "db"
+        }
+      ],
+      "run_command": "rails s -b 0.0.0.0",
+      "container_ports": [
+        {
+          "protocol": "tcp",
+          "inner_port": 3000,
+          "outer_port": 3000,
+          "published": true
+        }
+      ],
+      "container_envvars": null
+    }
+  ],
+  "name": "OBCENEIKONAbracaZabra"
+}

@@ -1,0 +1,25 @@
+---
+version: '2'
+services:
+  worker:
+    extends:
+      service: common
+    links:
+    - redis
+    - db
+    depends_on:
+    - redis
+    - db
+    command: 
+  common:
+    build: "."
+    environment:
+      RACK_ENV: production
+  app:
+    extends:
+      service: common
+    links:
+    - db
+    ports:
+    - 3000:3000
+    command: rails s -b 0.0.0.0
